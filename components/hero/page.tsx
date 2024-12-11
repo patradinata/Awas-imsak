@@ -1,16 +1,16 @@
 "use client";
 
 import { ChangeEvent, useEffect, useState } from "react";
-import Link from 'next/link'
+import Link from "next/link";
 import Select from "react-select";
 import Textra from "react-textra";
 import Image from "next/image";
 import AOS from "aos";
 import "aos/dist/aos.css";
-import { motion } from 'framer-motion';
-import { Toaster, toast } from 'react-hot-toast';
-import Notification from '../notification/page';
-import Weather from '../weather/page'
+import { motion } from "framer-motion";
+import { Toaster, toast } from "react-hot-toast";
+import Notification from "../notification/page";
+import Weather from "../weather/page";
 
 interface Location {
   value: string;
@@ -20,7 +20,7 @@ interface Config {
   opencageApiKey: string;
 }
 export const config: Config = {
-  opencageApiKey: process.env.NEXT_PUBLIC_OPENCAGE_API_KEY || '',
+  opencageApiKey: process.env.NEXT_PUBLIC_OPENCAGE_API_KEY || "",
 };
 
 const Hero = () => {
@@ -74,18 +74,17 @@ const Hero = () => {
     }
   };
 
-  
   const detectAndSetLocation = async (locations: Location[]) => {
     if ("geolocation" in navigator) {
       try {
         const position = await new Promise<GeolocationPosition>((resolve, reject) => {
           // Tambahkan options untuk geolocation
           const options = {
-            enableHighAccuracy: true,  // Mencoba mendapatkan hasil yang lebih akurat
-            timeout: 10000,            // Timeout setelah 10 detik
-            maximumAge: 0              // Selalu mendapatkan posisi terbaru
+            enableHighAccuracy: true, // Mencoba mendapatkan hasil yang lebih akurat
+            timeout: 10000, // Timeout setelah 10 detik
+            maximumAge: 0, // Selalu mendapatkan posisi terbaru
           };
-          
+
           navigator.geolocation.getCurrentPosition(
             resolve,
             (error: GeolocationPositionError) => {
@@ -109,59 +108,53 @@ const Hero = () => {
             options
           );
         });
-  
+
         const { latitude, longitude } = position.coords;
-        
+
         try {
-          const response = await fetch(
-            `https://api.opencagedata.com/geocode/v1/json?q=${latitude}+${longitude}&key=${config.opencageApiKey}&language=id`
-          );
-          
+          const response = await fetch(`https://api.opencagedata.com/geocode/v1/json?q=52.3877830%2C9.7334394&key=e62640ddd10a43ff820ca9f1ec017578${latitude}+${longitude}&key=${config.opencageApiKey}&language=id`);
+
           if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
           }
-          
+
           const data = await response.json();
-          
+
           if (!data.results || data.results.length === 0) {
             throw new Error("Tidak ada hasil lokasi yang ditemukan");
           }
-  
+
           const locationDetail = data.results[0].components;
           const regency = locationDetail.county || locationDetail.city || locationDetail.state_district;
-          
+
           if (!regency) {
             throw new Error("Detail lokasi tidak lengkap");
           }
-  
-          const matchedLocation = locations.find(loc => {
-            const normalizedRegency = regency.toUpperCase()
-              .replace('KABUPATEN', 'KAB.')
-              .replace('KOTA', 'KOTA');
+
+          const matchedLocation = locations.find((loc) => {
+            const normalizedRegency = regency.toUpperCase().replace("KABUPATEN", "KAB.").replace("KOTA", "KOTA");
             return loc.label.includes(normalizedRegency);
           });
-  
+
           if (matchedLocation) {
             setSelectedLocation(matchedLocation);
-            toast.success(`Lokasi terdeteksi: ${matchedLocation.label}`, {duration: 4000});
+            toast.success(`Lokasi terdeteksi: ${matchedLocation.label}`, { duration: 4000 });
           } else {
-            toast.error("Lokasi terdeteksi tetapi tidak ada dalam daftar yang tersedia", {duration: 4000});
+            toast.error("Lokasi terdeteksi tetapi tidak ada dalam daftar yang tersedia", { duration: 4000 });
             setSelectedLocation(locations[50]);
           }
-  
         } catch (apiError) {
           console.error("API Error:", apiError);
-          toast.error("Gagal mengambil detail lokasi dari server", {duration: 4000});
+          toast.error("Gagal mengambil detail lokasi dari server", { duration: 4000 });
           setSelectedLocation(locations[50]);
         }
-  
       } catch (error) {
         console.error("Geolocation Error:", error);
-        toast.error(error instanceof Error ? error.message : "Gagal mendeteksi lokasi", {duration: 4000});
+        toast.error(error instanceof Error ? error.message : "Gagal mendeteksi lokasi", { duration: 4000 });
         setSelectedLocation(locations[50]);
       }
     } else {
-      toast.error("Browser tidak mendukung geolocation", {duration: 4000});
+      toast.error("Browser tidak mendukung geolocation", { duration: 4000 });
       setSelectedLocation(locations[50]);
     }
     setIsLoading(false);
@@ -210,9 +203,7 @@ const Hero = () => {
       timeZone = "WIT";
     }
 
-    const formattedTime = `${formatTime(currentTime.getHours())}:${formatTime(
-      currentTime.getMinutes()
-    )}:${formatTime(currentTime.getSeconds())}`;
+    const formattedTime = `${formatTime(currentTime.getHours())}:${formatTime(currentTime.getMinutes())}:${formatTime(currentTime.getSeconds())}`;
 
     const timeZoneInfo = `UTC+${offsetHours} | ${formattedTime} ${timeZone}`;
 
@@ -247,16 +238,17 @@ const Hero = () => {
           <p
             className="
           bg-gradient-to-r 
-          from-[#4f772d] 
-          to-[#aad576] 
+          from-[#ffff] 
+          to-[#addf70] 
           inline-block 
           monas
           text-[8rem]
           max-[640px]:text-[5.5rem]
-          text-transparent 
+          text-transparent
           bg-clip-text
           drop-shadow-xl
           leading-[7rem]
+          px-5
           max-[640px]:leading-[4.5rem]"
             data-aos="fade-up"
             data-aos-delay="1000"
@@ -264,19 +256,11 @@ const Hero = () => {
           >
             Awas <br /> Imsak!
           </p>
-          <div
-            data-aos="fade-up"
-            data-aos-delay="1200"
-            data-aos-duration="1000"
-          >
+          <div data-aos="fade-up" data-aos-delay="1200" data-aos-duration="1000">
             <Textra
               effect="downTop"
               duration={500}
-              data={[
-                "Awas Imsak! hadir untuk teman-teman yang suka sahur jam 12 siang",
-                "Masa puasa 30 hari doang ga bisa sih bang?",
-                "Awas Imsak! Puasa Tenang, Hati Gembirang.",
-              ]}
+              data={["Awas Imsak! hadir untuk teman-teman yang suka sahur jam 12 siang", "Masa puasa 30 hari doang ga bisa sih bang?", "Awas Imsak! Puasa Tenang, Hati Gembirang."]}
               className="opensans text-[15px]"
             />
           </div>
@@ -287,9 +271,7 @@ const Hero = () => {
             data-aos-delay="1400"
             data-aos-duration="1000"
           >
-            Dari Abu Hurairah RA berkata, Rasulullah SAW bersabda: &quot;Siapa
-            berpuasa di bulan Ramadan dengan dilandasi iman dan ikhlas mengharap
-            ridha Allah, maka diampuni dosanya yang lalu,&quot; (HR Al-Bukhari)
+            Dari Abu Hurairah RA berkata, Rasulullah SAW bersabda: &quot;Siapa berpuasa di bulan Ramadan dengan dilandasi iman dan ikhlas mengharap ridha Allah, maka diampuni dosanya yang lalu,&quot; (HR Al-Bukhari)
           </p>
           <div
             className="mt-5 
@@ -344,62 +326,36 @@ const Hero = () => {
           >
             <p className="text-[12px] italic">
               © 2024
-              <Link
-                href="https://github.com/pr0kc"
-                rel="noopener noreferrer"
-                target="_blank"
-                className="underline"
-              >
+              <Link href="https://instagram.com/patra_dinata" rel="noopener noreferrer" target="_blank" className="underline">
                 {" "}
-                pr0kc,{" "}
+                patra_dinata,{" "}
               </Link>
-              under RIOT REVENGER exclusive agreements.
+              All Rights Reserved&trade;.
             </p>
           </motion.div>
         </div>
 
         <div className="flex flex-col w-[50rem] max-[640px]:w-[20rem]">
-          <div
-            className="flex mb-5 border border-[#0d2818] rounded-full bg-[#0d1811] overflow-hidden"
-            data-aos="fade-up"
-            data-aos-delay="1000"
-            data-aos-duration="1000"
-          >
+          <div className="flex mb-5 border border-[#0d2818] rounded-full bg-[#0d1811] overflow-hidden" data-aos="fade-up" data-aos-delay="1000" data-aos-duration="1000">
             {/* Left side - Timezone */}
             <div className="flex-1 p-4 text-center border-r border-[#0d2818]">
-              <p className="text-xl max-[640px]:text-lg opensans">
-                {localTimeZone}
-              </p>
+              <p className="text-xl max-[640px]:text-lg opensans">{localTimeZone}</p>
             </div>
 
             {/* Right side - Weather */}
             <div className="flex-1 p-4 text-center">
-              <p className="text-xl max-[640px]:text-lg opensans">
-               -
-              </p>
+              <p className="text-xl max-[640px]:text-lg opensans">-</p>
             </div>
           </div>
-          <h1
-            className="text-2xl poppins-extrabold mb-4 max-[640px]:text-lg"
-            data-aos="fade-up"
-            data-aos-delay="1100"
-            data-aos-duration="1000"
-          >
+          <h1 className="text-2xl poppins-extrabold mb-4 max-[640px]:text-lg" data-aos="fade-up" data-aos-delay="1100" data-aos-duration="1000">
             Pilih Wilayah:
           </h1>
-          <div
-            data-aos="fade-up"
-            data-aos-delay="1200"
-            data-aos-duration="1000"
-            className="z-[999]"
-          >
+          <div data-aos="fade-up" data-aos-delay="1200" data-aos-duration="1000" className="z-[999]">
             <Select
               options={locations}
               value={selectedLocation}
               onChange={handleLocationChange}
-              placeholder={
-                isLoading ? "Mendeteksi lokasi..." : "Cari lokasi..."
-              }
+              placeholder={isLoading ? "Mendeteksi lokasi..." : "Cari lokasi..."}
               isDisabled={isLoading}
               isClearable
               className="poppins-regular mb-4 hover:cursor-text text-black"
@@ -408,96 +364,46 @@ const Hero = () => {
           {prayerSchedule && (
             <div className="poppins-regular text-[20px]">
               <div className="flex justify-between">
-                <div
-                  className="flex flex-col mb-5 max-[640px]:text-lg"
-                  data-aos="fade-up"
-                  data-aos-delay="1300"
-                  data-aos-duration="1000"
-                >
+                <div className="flex flex-col mb-5 max-[640px]:text-lg" data-aos="fade-up" data-aos-delay="1300" data-aos-duration="1000">
                   <span className="font-semibold">Wilayah:</span>
                   <span>{selectedLocation && selectedLocation.label}</span>
                 </div>
-                <div
-                  className="flex flex-col mb-5 max-[640px]:text-lg"
-                  data-aos="fade-up"
-                  data-aos-delay="1400"
-                  data-aos-duration="1000"
-                >
+                <div className="flex flex-col mb-5 max-[640px]:text-lg" data-aos="fade-up" data-aos-delay="1400" data-aos-duration="1000">
                   <span className="font-semibold">Hari / Tanggal:</span>
                   <span>{prayerSchedule.tanggal}</span>
                 </div>
               </div>
               <div className="grid grid-cols-4 gap-4 max-[640px]:grid-cols-2">
-                <div
-                  className="flex flex-col border border-[#0d2818] p-4 rounded-md active-box active-shadow max-[640px]:text-lg"
-                  data-aos="fade-up"
-                  data-aos-delay="1400"
-                  data-aos-duration="1000"
-                >
+                <div className="flex flex-col border border-[#0d2818] p-4 rounded-md active-box active-shadow max-[640px]:text-lg" data-aos="fade-up" data-aos-delay="1400" data-aos-duration="1000">
                   <span className="font-semibold">Imsak:</span>
                   <span>{prayerSchedule.imsak}</span>
                 </div>
 
-                <div
-                  className="flex flex-col border border-[#0d2818] p-4 rounded-md active-shadow max-[640px]:text-lg"
-                  data-aos="fade-up"
-                  data-aos-delay="1500"
-                  data-aos-duration="1000"
-                >
+                <div className="flex flex-col border border-[#0d2818] p-4 rounded-md active-shadow max-[640px]:text-lg" data-aos="fade-up" data-aos-delay="1500" data-aos-duration="1000">
                   <span className="font-semibold">Subuh:</span>
                   <span>{prayerSchedule.subuh}</span>
                 </div>
-                <div
-                  className="flex flex-col border border-[#0d2818] p-4 rounded-md active-shadow max-[640px]:text-lg"
-                  data-aos="fade-up"
-                  data-aos-delay="1600"
-                  data-aos-duration="1000"
-                >
+                <div className="flex flex-col border border-[#0d2818] p-4 rounded-md active-shadow max-[640px]:text-lg" data-aos="fade-up" data-aos-delay="1600" data-aos-duration="1000">
                   <span className="font-semibold">Terbit:</span>
                   <span>{prayerSchedule.terbit}</span>
                 </div>
-                <div
-                  className="flex flex-col border border-[#0d2818] p-4 rounded-md active-shadow max-[640px]:text-lg"
-                  data-aos="fade-up"
-                  data-aos-delay="1700"
-                  data-aos-duration="1000"
-                >
+                <div className="flex flex-col border border-[#0d2818] p-4 rounded-md active-shadow max-[640px]:text-lg" data-aos="fade-up" data-aos-delay="1700" data-aos-duration="1000">
                   <span className="font-semibold">Dhuha:</span>
                   <span>{prayerSchedule.dhuha}</span>
                 </div>
-                <div
-                  className="flex flex-col border border-[#0d2818] p-4 rounded-md active-shadow max-[640px]:text-lg"
-                  data-aos="fade-up"
-                  data-aos-delay="1800"
-                  data-aos-duration="1000"
-                >
+                <div className="flex flex-col border border-[#0d2818] p-4 rounded-md active-shadow max-[640px]:text-lg" data-aos="fade-up" data-aos-delay="1800" data-aos-duration="1000">
                   <span className="font-semibold">Dzuhur:</span>
                   <span>{prayerSchedule.dzuhur}</span>
                 </div>
-                <div
-                  className="flex flex-col border border-[#0d2818] p-4 rounded-md active-shadow max-[640px]:text-lg"
-                  data-aos="fade-up"
-                  data-aos-delay="1900"
-                  data-aos-duration="1000"
-                >
+                <div className="flex flex-col border border-[#0d2818] p-4 rounded-md active-shadow max-[640px]:text-lg" data-aos="fade-up" data-aos-delay="1900" data-aos-duration="1000">
                   <span className="font-semibold">Ashar:</span>
                   <span>{prayerSchedule.ashar}</span>
                 </div>
-                <div
-                  className="flex flex-col border border-[#0d2818] p-4 rounded-md active-box active-shadow max-[640px]:text-lg"
-                  data-aos="fade-up"
-                  data-aos-delay="2000"
-                  data-aos-duration="1000"
-                >
+                <div className="flex flex-col border border-[#0d2818] p-4 rounded-md active-box active-shadow max-[640px]:text-lg" data-aos="fade-up" data-aos-delay="2000" data-aos-duration="1000">
                   <span className="font-semibold">Maghrib:</span>
                   <span>{prayerSchedule.maghrib}</span>
                 </div>
-                <div
-                  className="flex flex-col border border-[#0d2818] p-4 rounded-md active-shadow max-[640px]:text-lg"
-                  data-aos="fade-up"
-                  data-aos-delay="2100"
-                  data-aos-duration="1000"
-                >
+                <div className="flex flex-col border border-[#0d2818] p-4 rounded-md active-shadow max-[640px]:text-lg" data-aos="fade-up" data-aos-delay="2100" data-aos-duration="1000">
                   <span className="font-semibold">Isya:</span>
                   <span>{prayerSchedule.isya}</span>
                 </div>

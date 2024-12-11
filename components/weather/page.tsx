@@ -1,6 +1,6 @@
-'use client'
+"use client";
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 
 interface WeatherData {
   weather: Array<{
@@ -35,34 +35,34 @@ const Weather = () => {
   const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
   const [locationData, setLocationData] = useState<GeoLocation | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string>('');
+  const [error, setError] = useState<string>("");
 
   const detectAndSetLocation = async (locations: Location[]) => {
-    console.log('Memulai deteksi lokasi...');
-    
+    console.log("Memulai deteksi lokasi...");
+
     if (!("geolocation" in navigator)) {
-      setError('Geolocation tidak didukung oleh browser ini');
+      setError("Geolocation tidak didukung oleh browser ini");
       setLoading(false);
       return;
     }
 
     try {
       const position = await new Promise<GeolocationPosition>((resolve, reject) => {
-        console.log('Meminta izin lokasi...');
-        
+        console.log("Meminta izin lokasi...");
+
         const options = {
           enableHighAccuracy: true,
           timeout: 10000,
-          maximumAge: 0
+          maximumAge: 0,
         };
 
         navigator.geolocation.getCurrentPosition(
           (pos) => {
-            console.log('Lokasi berhasil didapatkan');
+            console.log("Lokasi berhasil didapatkan");
             resolve(pos);
           },
           (error: GeolocationPositionError) => {
-            console.log('Error saat mendapatkan lokasi:', error);
+            console.log("Error saat mendapatkan lokasi:", error);
             let errorMessage = "Gagal mendeteksi lokasi: ";
             switch (error.code) {
               case error.PERMISSION_DENIED:
@@ -84,40 +84,35 @@ const Weather = () => {
       });
 
       const { latitude, longitude } = position.coords;
-      console.log('Koordinat:', latitude, longitude);
+      console.log("Koordinat:", latitude, longitude);
 
-      console.log('Mengambil data lokasi dari OpenCage...');
-      const locationResponse = await fetch(
-        `https://api.opencagedata.com/geocode/v1/json?q=${latitude}+${longitude}&key=${process.env.NEXT_PUBLIC_OPENCAGE_API_KEY}&language=id`
-      );
-      
+      console.log("Mengambil data lokasi dari OpenCage...");
+      const locationResponse = await fetch(`https://api.opencagedata.com/geocode/v1/json?q=${latitude}+${longitude}&key=${process.env.NEXT_PUBLIC_OPENCAGE_API_KEY}&language=id`);
+
       if (!locationResponse.ok) {
-        throw new Error('Gagal mengambil data lokasi dari OpenCage');
+        throw new Error("Gagal mengambil data lokasi dari OpenCage");
       }
-      
+
       const locationData: GeoLocation = await locationResponse.json();
-      console.log('Data lokasi:', locationData);
+      console.log("Data lokasi:", locationData);
       setLocationData(locationData);
 
-      console.log('Mengambil data cuaca...');
-      const weatherResponse = await fetch(
-        `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${process.env.NEXT_PUBLIC_WEATHER_API_KEY}&units=metric`
-      );
-      
-      if (!weatherResponse.ok) {
-        throw new Error('Gagal mengambil data cuaca');
-      }
-      
-      const weatherData: WeatherData = await weatherResponse.json();
-      console.log('Data cuaca:', weatherData);
-      setWeatherData(weatherData);
+      console.log("Mengambil data cuaca...");
+      const weatherResponse = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${process.env.NEXT_PUBLIC_WEATHER_API_KEY}&units=metric`);
 
+      if (!weatherResponse.ok) {
+        throw new Error("Gagal mengambil data cuaca");
+      }
+
+      const weatherData: WeatherData = await weatherResponse.json();
+      console.log("Data cuaca:", weatherData);
+      setWeatherData(weatherData);
     } catch (err) {
-      console.error('Error:', err);
+      console.error("Error:", err);
       if (err instanceof Error) {
         setError(err.message);
       } else {
-        setError('Terjadi kesalahan yang tidak diketahui');
+        setError("Terjadi kesalahan yang tidak diketahui");
       }
     } finally {
       setLoading(false);
@@ -149,9 +144,9 @@ const Weather = () => {
       <div className="p-4">
         <div className="max-w-md mx-auto bg-red-50 border border-red-200 rounded-lg p-4">
           <p className="text-red-600">{error}</p>
-          <button 
+          <button
             onClick={() => {
-              setError('');
+              setError("");
               setLoading(true);
               detectAndSetLocation([]);
             }}
@@ -170,9 +165,7 @@ const Weather = () => {
         <div className="space-y-4">
           <div className="text-center">
             <h2 className="text-2xl font-bold">Informasi Cuaca</h2>
-            <p className="text-gray-600">
-              Lokasi: {locationData.results[0].formatted}
-            </p>
+            <p className="text-gray-600">Lokasi: {locationData.results[0].formatted}</p>
           </div>
 
           <div className="bg-gray-50 p-4 rounded-lg">

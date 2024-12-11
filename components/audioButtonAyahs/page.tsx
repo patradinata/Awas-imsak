@@ -1,6 +1,6 @@
-import React, { useState, useRef } from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlay, faPause } from '@fortawesome/free-solid-svg-icons';
+import React, { useState, useRef } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faPlay, faPause } from "@fortawesome/free-solid-svg-icons";
 
 const AudioButtonAyahs: React.FC<{ audioSource: string }> = ({ audioSource }) => {
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -16,6 +16,13 @@ const AudioButtonAyahs: React.FC<{ audioSource: string }> = ({ audioSource }) =>
       setIsPlaying(!isPlaying);
     }
   };
+
+  // const handleTimeUpdate = () => {
+  //   if(audioRef.current){
+  //     setCurrentTime(audioref.current.currentTime);
+  //     setDuration(audioRef.current.duration);
+  //   }
+  // }
   const handleAudioEnded = () => {
     setIsPlaying(false); // Set isPlaying to false when audio ends
   };
@@ -23,14 +30,10 @@ const AudioButtonAyahs: React.FC<{ audioSource: string }> = ({ audioSource }) =>
   return (
     <>
       <audio ref={audioRef} src={audioSource} onEnded={handleAudioEnded} />
-      <div className='flex justify-end mt-2'>
-      <button className='px-4 py-2 bg-[#0d1811] border border-[#3e664e] rounded-full' onClick={togglePlay}>
-        {isPlaying ? (
-          <FontAwesomeIcon icon={faPause} />
-        ) : (
-          <FontAwesomeIcon icon={faPlay} />
-        )}
-      </button>
+      <div className="flex justify-end mt-2">
+        <button className="px-4 py-2 bg-[#0d1811] border border-[#3e664e] rounded-full" onClick={togglePlay}>
+          {isPlaying ? <FontAwesomeIcon icon={faPause} /> : <FontAwesomeIcon icon={faPlay} />}
+        </button>
       </div>
     </>
   );
