@@ -80,7 +80,6 @@ const Hero = () => {
         const position = await new Promise<GeolocationPosition>((resolve, reject) => {
           navigator.geolocation.getCurrentPosition(resolve, reject);
 
-          
           // Tambahkan options untuk geolocation
           const options = {
             enableHighAccuracy: true, // Mencoba mendapatkan hasil yang lebih akurat
@@ -241,7 +240,7 @@ const Hero = () => {
           <p
             className="
           bg-gradient-to-r 
-          from-[#ffff] 
+          from-[#fff] 
           to-[#addf70] 
           inline-block 
           monas
