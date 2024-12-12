@@ -78,6 +78,9 @@ const Hero = () => {
     if ("geolocation" in navigator) {
       try {
         const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+          navigator.geolocation.getCurrentPosition(resolve, reject);
+
+          
           // Tambahkan options untuk geolocation
           const options = {
             enableHighAccuracy: true, // Mencoba mendapatkan hasil yang lebih akurat
