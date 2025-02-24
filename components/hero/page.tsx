@@ -11,11 +11,13 @@ import { motion } from "framer-motion";
 import { Toaster, toast } from "react-hot-toast";
 import Notification from "../notification/page";
 import Weather from "../weather/page";
+import RamadhanCountdown from "../ramadhanCountdown/page";
 
 interface Location {
   value: string;
   label: string;
 }
+
 interface Config {
   opencageApiKey: string;
 }
@@ -74,23 +76,20 @@ const Hero = () => {
     }
   };
 
+  // Fungsi untuk mendeteksi lokasi pengguna
   const detectAndSetLocation = async (locations: Location[]) => {
     if ("geolocation" in navigator) {
       try {
         const position = await new Promise<GeolocationPosition>((resolve, reject) => {
-          navigator.geolocation.getCurrentPosition(resolve, reject);
-
-          // Tambahkan options untuk geolocation
           const options = {
-            enableHighAccuracy: true, // Mencoba mendapatkan hasil yang lebih akurat
-            timeout: 10000, // Timeout setelah 10 detik
-            maximumAge: 0, // Selalu mendapatkan posisi terbaru
+            enableHighAccuracy: true,
+            timeout: 10000,
+            maximumAge: 0,
           };
 
           navigator.geolocation.getCurrentPosition(
             resolve,
             (error: GeolocationPositionError) => {
-              // Tangani error geolocation secara spesifik
               let errorMessage = "Gagal mendeteksi lokasi: ";
               switch (error.code) {
                 case error.PERMISSION_DENIED:
@@ -111,43 +110,95 @@ const Hero = () => {
           );
         });
 
-        const { latitude, longitude } = position.coords;
+        const normalizeString = (str: string): string => {
+          return str
+            .toLowerCase()
+            .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "")
+            .replace(/\s+/g, " ")
+            .replace(/kabupaten/g, "kab")
+            .replace(/kota/g, "kota")
+            .trim();
+        };
 
+        const { latitude, longitude } = position.coords;
         try {
-          const response = await fetch(`https://api.opencagedata.com/geocode/v1/json?q=52.3877830%2C9.7334394&key=e62640ddd10a43ff820ca9f1ec017578${latitude}+${longitude}&key=${config.opencageApiKey}&language=id`);
+          const response = await fetch(`https://api.opencagedata.com/geocode/v1/json?q=${latitude}+${longitude}&key=${process.env.NEXT_PUBLIC_OPENCAGE_API_KEY}&language=id`);
 
           if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
           }
 
           const data = await response.json();
-
           if (!data.results || data.results.length === 0) {
             throw new Error("Tidak ada hasil lokasi yang ditemukan");
           }
 
           const locationDetail = data.results[0].components;
-          const regency = locationDetail.county || locationDetail.city || locationDetail.state_district;
+          const regency = locationDetail.regency;
+          const city = locationDetail.city;
+          const county = locationDetail.county; // Tambahan untuk kabupaten
+          const state = locationDetail.state; // Tambahan untuk provinsi
 
-          if (!regency) {
-            throw new Error("Detail lokasi tidak lengkap");
+          // Fungsi untuk mencari lokasi berdasarkan beberapa kriteria
+          const findLocation = (searchTerms: string[]): Location | undefined => {
+            return locations.find((loc) => {
+              const normalizedLocationLabel = normalizeString(loc.label);
+              return searchTerms.some((term) => {
+                const normalizedTerm = normalizeString(term);
+                return normalizedLocationLabel.includes(normalizedTerm) || normalizedTerm.includes(normalizedLocationLabel);
+              });
+            });
+          };
+
+          // Urutan pencarian berdasarkan prioritas
+          let matchedLocation: Location | undefined;
+          let detectedLocation = "";
+
+          if (regency) {
+            matchedLocation = findLocation([regency]);
+            detectedLocation = regency;
           }
 
-          const matchedLocation = locations.find((loc) => {
-            const normalizedRegency = regency.toUpperCase().replace("KABUPATEN", "KAB.").replace("KOTA", "KOTA");
-            return loc.label.includes(normalizedRegency);
-          });
+          if (!matchedLocation && city) {
+            matchedLocation = findLocation([city]);
+            detectedLocation = city;
+          }
+
+          if (!matchedLocation && county) {
+            matchedLocation = findLocation([county]);
+            detectedLocation = county;
+          }
+
+          // Fallback ke provinsi jika tidak ada yang cocok
+          if (!matchedLocation && state) {
+            matchedLocation = findLocation([state]);
+            detectedLocation = state;
+          }
 
           if (matchedLocation) {
             setSelectedLocation(matchedLocation);
-            toast.success(`Lokasi terdeteksi: ${matchedLocation.label}`, { duration: 4000 });
+            toast.success(`Lokasi terdeteksi: ${matchedLocation.label} (${detectedLocation})`, {
+              duration: 4000,
+            });
           } else {
             toast.error("Lokasi terdeteksi tetapi tidak ada dalam daftar yang tersedia", { duration: 4000 });
-            setSelectedLocation(locations[50]);
+            setSelectedLocation(locations[50]); // Default location
           }
+
+          // Log untuk debugging
+          console.log("Detail Lokasi:", {
+            regency,
+            city,
+            county,
+            state,
+            detected: detectedLocation,
+            matched: matchedLocation?.label,
+          });
         } catch (apiError) {
           console.error("API Error:", apiError);
-          toast.error("Gagal mengambil detail lokasi dari server", { duration: 4000 });
+          toast.error("Gagal mengambil detail lokasi dari server", {
+            duration: 4000,
+          });
           setSelectedLocation(locations[50]);
         }
       } catch (error) {
@@ -169,6 +220,7 @@ const Hero = () => {
     }
   };
 
+  // Menjalankan Fetch Data saat komponen dimuat
   useEffect(() => {
     const initializeLocation = async () => {
       const locationsList = await fetchData();
@@ -218,6 +270,7 @@ const Hero = () => {
 
   return (
     <div className="bodi-hero">
+      <RamadhanCountdown />
       <div className="px-[3.5rem] py-[1rem] flex max-[640px]:flex-col max-[640px]:py-[2rem] max-[640px]:space-y-10 justify-between items-center h-screen">
         <Toaster position="top-left" reverseOrder={false} />
         <div className="flex flex-col">
@@ -240,30 +293,29 @@ const Hero = () => {
           <p
             className="
           bg-gradient-to-r 
-          from-[#fff] 
-          to-[#addf70] 
+          from-[#4f772d] 
+          to-[#aad576] 
           inline-block 
-          monas
+          kahlil
           text-[8rem]
           max-[640px]:text-[5.5rem]
-          text-transparent
+          text-transparent 
           bg-clip-text
           drop-shadow-xl
           leading-[7rem]
-          px-5
           max-[640px]:leading-[4.5rem]"
             data-aos="fade-up"
             data-aos-delay="1000"
             data-aos-duration="1000"
           >
-            Awas <br /> Imsak!
+            Awas Imsak!
           </p>
-          <div data-aos="fade-up" data-aos-delay="1200" data-aos-duration="1000">
+          <div data-aos="fade-up" data-aos-delay="1200" data-aos-duration="2000">
             <Textra
               effect="downTop"
               duration={500}
               data={["Awas Imsak! hadir untuk teman-teman yang suka sahur jam 12 siang", "Masa puasa 30 hari doang ga bisa sih bang?", "Awas Imsak! Puasa Tenang, Hati Gembirang."]}
-              className="opensans text-[15px]"
+              className="opensans text-[15px] mt-5"
             />
           </div>
           <p
@@ -273,7 +325,13 @@ const Hero = () => {
             data-aos-delay="1400"
             data-aos-duration="1000"
           >
-            Dari Abu Hurairah RA berkata, Rasulullah SAW bersabda: &quot;Siapa berpuasa di bulan Ramadan dengan dilandasi iman dan ikhlas mengharap ridha Allah, maka diampuni dosanya yang lalu,&quot; (HR Al-Bukhari)
+            Rasulullah saw bersabda:
+            <br />
+            <br />
+            ثَلَاثُ دَعَوَاتٍ مُسْتَجَابَاتٍ ؛دَعْوَةُ الصَّائِمِ وَدَعْوَةُ الْمُسَافِرِ وَدَعْوَةُ الْمَظْلُوْمِ
+            <br />
+            <br />
+            Artinya: Ada tiga macam doa yang mustajab, yaitu doa orang yang sedang puasa, doa musafir, dan doa orang yang teraniaya (HR Baihaqi).
           </p>
           <div
             className="mt-5 
@@ -327,12 +385,11 @@ const Hero = () => {
             }}
           >
             <p className="text-[12px] italic">
-              © 2024
-              <Link href="https://instagram.com/patra_dinata" rel="noopener noreferrer" target="_blank" className="underline">
+              © {new Date().getFullYear()}{" "}
+              <Link href="https://github.com/klawcodes" rel="noopener noreferrer" target="_blank" className="underline">
                 {" "}
-                patra_dinata,{" "}
               </Link>
-              All Rights Reserved&trade;.
+              Awas-Imsak All Rights Reserved.
             </p>
           </motion.div>
         </div>
@@ -344,10 +401,10 @@ const Hero = () => {
               <p className="text-xl max-[640px]:text-lg opensans">{localTimeZone}</p>
             </div>
 
-            {/* Right side - Weather */}
+            {/* Right side - Weather 
             <div className="flex-1 p-4 text-center">
               <p className="text-xl max-[640px]:text-lg opensans">-</p>
-            </div>
+            </div> */}
           </div>
           <h1 className="text-2xl poppins-extrabold mb-4 max-[640px]:text-lg" data-aos="fade-up" data-aos-delay="1100" data-aos-duration="1000">
             Pilih Wilayah:

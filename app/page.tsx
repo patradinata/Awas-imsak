@@ -1,40 +1,34 @@
-'use client'
+"use client";
 
-import { useState, useEffect } from 'react';
-import Hero from '../components/hero/page'
+import { useState, useEffect } from "react";
+import Hero from "../components/hero/page";
 
 export default function Home() {
-  
-  const [countdown, setCountdown] = useState('');
+  const [countdown, setCountdown] = useState("");
   const [countdownFinished, setCountdownFinished] = useState(false);
 
   // state baru untuk control tampil/hilang text
   const [showText, setShowText] = useState(true);
 
   useEffect(() => {
-
-    const targetDate = new Date('2024-03-11T18:30:00').getTime();
+    const targetDate = new Date("2024-03-11T18:30:00").getTime();
 
     const timer = setInterval(() => {
-    
       const now = new Date().getTime();
-    
+
       const distance = targetDate - now;
 
-      if(distance <= 0) {
-      
+      if (distance <= 0) {
         clearInterval(timer);
-      
+
         setCountdownFinished(true);
         setShowText(true);
 
         setTimeout(() => {
-          setCountdown('');
+          setCountdown("");
           setShowText(false);
         }, 3000);
-
       } else {
-
         // hitung countdown
         const days = Math.floor(distance / (1000 * 60 * 60 * 24));
         const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
@@ -43,22 +37,20 @@ export default function Home() {
 
         setCountdown(`${days} hari ${hours} jam ${minutes} menit ${seconds} detik`);
       }
-
     }, 1000);
 
     return () => clearInterval(timer);
-
   }, []);
 
   // effect untuk handle timeout
   useEffect(() => {
-    if(countdownFinished) {
+    if (countdownFinished) {
       setTimeout(() => {
         setShowText(false);
       }, 3000);
     }
   }, [countdownFinished]);
-  
+
   return (
     <>
       {/* Tampilkan penomoran halaman {!countdownFinished && (
@@ -135,7 +127,7 @@ export default function Home() {
       )}
 
       {countdownFinished && !showText && <Hero />}*/}
-      <Hero/>
+      <Hero />
     </>
   );
 }
