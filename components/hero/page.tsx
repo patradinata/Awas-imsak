@@ -17,7 +17,6 @@ interface Location {
   value: string;
   label: string;
 }
-
 interface Config {
   opencageApiKey: string;
 }
@@ -76,7 +75,6 @@ const Hero = () => {
     }
   };
 
-  // Fungsi untuk mendeteksi lokasi pengguna
   const detectAndSetLocation = async (locations: Location[]) => {
     if ("geolocation" in navigator) {
       try {
@@ -119,15 +117,16 @@ const Hero = () => {
             .replace(/kota/g, "kota")
             .trim();
         };
-
+        // mendapatkan latitude dan longitude dari objek position
         const { latitude, longitude } = position.coords;
         try {
+          // mengirim permintaan ke API opencage untuk mendapatkan informasi Lokasi!
           const response = await fetch(`https://api.opencagedata.com/geocode/v1/json?q=${latitude}+${longitude}&key=${process.env.NEXT_PUBLIC_OPENCAGE_API_KEY}&language=id`);
-
+          // jika respon API tidak berhasil, maka akan mengembalikan pesan Error
           if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
           }
-
+          // mengubah respon API menjadi fomat Json
           const data = await response.json();
           if (!data.results || data.results.length === 0) {
             throw new Error("Tidak ada hasil lokasi yang ditemukan");
@@ -178,7 +177,7 @@ const Hero = () => {
           if (matchedLocation) {
             setSelectedLocation(matchedLocation);
             toast.success(`Lokasi terdeteksi: ${matchedLocation.label} (${detectedLocation})`, {
-              duration: 4000,
+              duration: 3000,
             });
           } else {
             toast.error("Lokasi terdeteksi tetapi tidak ada dalam daftar yang tersedia", { duration: 4000 });
@@ -220,7 +219,6 @@ const Hero = () => {
     }
   };
 
-  // Menjalankan Fetch Data saat komponen dimuat
   useEffect(() => {
     const initializeLocation = async () => {
       const locationsList = await fetchData();
@@ -241,10 +239,12 @@ const Hero = () => {
   };
 
   useEffect(() => {
+    // Fungsi untuk memperbarui waktu setiap detik
     const timer = setInterval(() => {
       setCurrentTime(new Date());
     }, 1000);
 
+    // menghitung offset zona waktu kedalam menit, lalu dikonversi ke Jam
     const offsetMinutes = -currentTime.getTimezoneOffset();
     const offsetHours = Math.floor(offsetMinutes / 60);
 
@@ -310,7 +310,7 @@ const Hero = () => {
           >
             Awas Imsak!
           </p>
-          <div data-aos="fade-up" data-aos-delay="1200" data-aos-duration="2000">
+          <div data-aos="fade-up" data-aos-delay="1200" data-aos-duration="1000">
             <Textra
               effect="downTop"
               duration={500}
@@ -386,10 +386,11 @@ const Hero = () => {
           >
             <p className="text-[12px] italic">
               © {new Date().getFullYear()}{" "}
-              <Link href="https://github.com/klawcodes" rel="noopener noreferrer" target="_blank" className="underline">
+              <Link href="https://www.instagram.com/patra_dinata" rel="noopener noreferrer" target="_blank" className="underline">
                 {" "}
+                Patra-Dinata,{" "}
               </Link>
-              Awas-Imsak All Rights Reserved.
+              All right reserved
             </p>
           </motion.div>
         </div>
