@@ -126,7 +126,7 @@ const Hero = () => {
           if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
           }
-          // mengubah respon API menjadi fomat Json
+          // mengubah respon API menjadi format Json
           const data = await response.json();
           if (!data.results || data.results.length === 0) {
             throw new Error("Tidak ada hasil lokasi yang ditemukan");

@@ -47,9 +47,7 @@ const QuranContent = ({ loadedSurahs, searchResults, currentSurahs, loading, loa
       </div>
 
       {searchResults.length === 0 ? (
-        <div className="bg-[#0d1811] border border-[#3e664e] p-4 rounded-2xl w-[1080px] flex flex-col justify-center items-center text-center">
-          <p>Yah... surahnya ga ketemu, coba cari yang lain dehh</p>
-        </div>
+        <div className="bg-[#0d1811] border border-[#3e664e] p-4 rounded-2xl w-[1080px] flex flex-col justify-center items-center text-center">{/* <p>Yah... surahnya ga ketemu, coba cari yang lain dehh</p> */}</div>
       ) : (
         <div className="grid grid-cols-4 gap-4 parent max-[640px]:grid-cols-1">
           {currentSurahs.map((surahData: SurahData) => (

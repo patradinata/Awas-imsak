@@ -104,7 +104,7 @@ const RamadhanCountdown = () => {
         </div>
 
         <p className="mt-4 text-sm text-gray-400">&quot;What makes your sorry different from all your other sorrys before?&quot;</p>
-        <p className="mt-4 text-sm text-gray-400">Awas Imsak! © {new Date().getFullYear()} </p>
+        <p className="mt-4 text-sm text-gray-400">Patra Dinata © {new Date().getFullYear()} </p>
       </div>
     </div>
   );
